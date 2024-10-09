@@ -2,12 +2,16 @@ package com.Nxer.TwistSpaceTechnology.common.machine;
 
 import static com.Nxer.TwistSpaceTechnology.util.TextEnums.tr;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlocksTiered;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.withChannel;
 import static gregtech.api.enums.HatchElement.Dynamo;
 import static gregtech.api.enums.HatchElement.InputBus;
 import static gregtech.api.enums.HatchElement.InputHatch;
 import static gregtech.api.enums.HatchElement.OutputBus;
+import static gregtech.api.enums.ItemList.Machine_EV_LightningRod;
 import static gregtech.api.enums.ItemList.Machine_HV_LightningRod;
+import static gregtech.api.enums.ItemList.Machine_IV_LightningRod;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static net.minecraftforge.common.util.ForgeDirection.EAST;
 import static net.minecraftforge.common.util.ForgeDirection.NORTH;
@@ -20,12 +24,15 @@ import static tectech.thing.metaTileEntity.multi.base.TTMultiblockBase.HatchElem
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -33,6 +40,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import com.Nxer.TwistSpaceTechnology.common.machine.multiMachineClasses.TT_MultiMachineBase_EM;
@@ -40,6 +48,7 @@ import com.Nxer.TwistSpaceTechnology.common.misc.CheckRecipeResults.CheckRecipeR
 import com.Nxer.TwistSpaceTechnology.common.misc.MachineShutDownReasons.SimpleShutDownReasons;
 import com.Nxer.TwistSpaceTechnology.util.TextLocalization;
 import com.Nxer.TwistSpaceTechnology.util.rewrites.TST_ItemID;
+import com.google.common.collect.ImmutableList;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
@@ -64,6 +73,7 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gtPlusPlus.core.material.MaterialsAlloy;
 import tectech.thing.metaTileEntity.hatch.MTEHatchDynamoMulti;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
@@ -126,7 +136,19 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
                 .addShape(STRUCTURE_PIECE_MAIN, transpose(shapeMain))
                 .addElement('C', ofBlock(sBlockCasingsBA0, 7))
                 .addElement('D', ofBlock(sBlockCasingsBA0, 8))
-                .addElement('A', ofBlock(sBlockCasingsBA0, 4))
+                .addElement(
+                    'A',
+                    withChannel(
+                        "superconductor",
+                        ofBlocksTiered(
+                            GTCM_LightningSpire::getBlockSuperconductorTier,
+                            ImmutableList.of(
+                                Pair.of(sBlockCasingsBA0, 4),
+                                Pair.of(sBlockCasingsBA0, 5),
+                                Pair.of(sBlockCasingsBA0, 9)),
+                            0,
+                            (m, t) -> m.superconductorTier = t,
+                            m -> m.superconductorTier)))
                 .addElement(
                     'B',
                     buildHatchAdder(GTCM_LightningSpire.class)
@@ -142,9 +164,13 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
     @Override
     public boolean checkMachine_EM(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         repairMachine();
-        if (!structureCheck_EM(STRUCTURE_PIECE_MAIN, hOffset, vOffset, dOffset)) return false;
+        this.superconductorTier = 0;
+        boolean sign = checkPiece(STRUCTURE_PIECE_MAIN, hOffset, vOffset, dOffset);
+        if (this.superconductorTier == 0) {
+            return false;
+        }
         setLightningPosition(getBaseMetaTileEntity().getFrontFacing());
-        return true;
+        return sign;
     }
 
     @Override
@@ -154,8 +180,8 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
 
     @Override
     public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
-        if (mMachine) return -1;
-        return survivialBuildPiece(
+        if (this.mMachine) return -1;
+        return this.survivialBuildPiece(
             STRUCTURE_PIECE_MAIN,
             stackSize,
             hOffset,
@@ -166,14 +192,35 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
             false,
             true);
     }
+
+    public static int getBlockSuperconductorTier(Block block, int meta) {
+        if (block == sBlockCasingsBA0) {
+            switch (meta) {
+                case 4 -> {
+                    return 1;
+                }
+                case 5 -> {
+                    return 2;
+                }
+                case 9 -> {
+                    return 3;
+                }
+                default -> {
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
     // endregion end
 
     // region Process
-    public static final int CRYOTHEUM_CONSUMPTION = 128;
-    protected static Fluid MOLTEN_IRON;
-    protected static Fluid CRYOTHEUM;
+    public static final int CONSUMPTION_FLUID = 128;
+    protected static Fluid FLUID_TARGET;
+    protected static Fluid CATALYST_TARGET;
     private static final int MAXRODS = 512;
     List<ItemStack> mStored = new ArrayList<>();
+
     private long tStored;
     private long tProduct;
     private long tMaxStored;
@@ -183,19 +230,16 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
     private int aX;
     private int aY;
     private int aZ;
+    private String nameRods = "Empty";
+    private String nameFluids = "Empty";
+    private String nameCatalyst = "Empty";
+    private byte tierRod = 0;
 
-    @Override
-    public void onFirstTick_EM(IGregTechTileEntity aBaseMetaTileEntity) {
-        if (aBaseMetaTileEntity.isServerSide()) {
-            if (null == MOLTEN_IRON) {
-                MOLTEN_IRON = Materials.Iron.getMolten(1)
-                    .getFluid();
-            }
-            if (null == CRYOTHEUM) {
-                CRYOTHEUM = FluidRegistry.getFluid("cryotheum");
-            }
-        }
-    }
+    TST_ItemID LightningRod_T1 = TST_ItemID.createNoNBT(Machine_HV_LightningRod.get(1));
+    TST_ItemID LightningRod_T2 = TST_ItemID.createNoNBT(Machine_EV_LightningRod.get(1));
+    TST_ItemID LightningRod_T3 = TST_ItemID.createNoNBT(Machine_IV_LightningRod.get(1));
+
+    private int superconductorTier = 0;
 
     private void setLightningPosition(ForgeDirection face) {
         aY = this.getBaseMetaTileEntity()
@@ -246,27 +290,27 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
                 return CheckRecipeResults.NoCorrectFluidInput;
             }
 
-            int tCryotheum = 0;
+            int tFluid = 0;
             List<FluidStack> cryotheums = new ArrayList<>();
-            int tMoltenIron = 0;
+            int tCatalyst = 0;
             List<FluidStack> moltenIrons = new ArrayList<>();
 
             // check fluids
             for (FluidStack f : tFluids) {
                 if (null == f || f.amount < 1) continue;
-                if (f.getFluid() == CRYOTHEUM) {
-                    tCryotheum += f.amount;
+                if (f.getFluid() == CATALYST_TARGET) {
+                    tFluid += f.amount;
                     cryotheums.add(f);
-                } else if (f.getFluid() == MOLTEN_IRON) {
-                    tMoltenIron += f.amount;
+                } else if (f.getFluid() == FLUID_TARGET) {
+                    tCatalyst += f.amount;
                     moltenIrons.add(f);
                 }
             }
 
-            int moltenIronConsumption = tRods * 72;
-            if (tCryotheum == CRYOTHEUM_CONSUMPTION && tMoltenIron == moltenIronConsumption) {
+            int fluidConsumption = tRods * 72;
+            if (tFluid == CONSUMPTION_FLUID && tCatalyst == fluidConsumption) {
                 // consume cryotheum
-                int toConsume = CRYOTHEUM_CONSUMPTION;
+                int toConsume = CONSUMPTION_FLUID;
                 for (FluidStack f : cryotheums) {
                     if (f.amount >= toConsume) {
                         f.amount -= toConsume;
@@ -278,7 +322,7 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
                 }
 
                 // consume molten iron
-                toConsume = moltenIronConsumption;
+                toConsume = fluidConsumption;
                 for (FluidStack f : moltenIrons) {
                     if (f.amount >= toConsume) {
                         f.amount -= toConsume;
@@ -307,29 +351,17 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
         } else if (OperatingMode > 0) {
 
             if (OperatingMode == 1 && tRods < MAXRODS) {
-                TST_ItemID LightningRod = TST_ItemID.createNoNBT(Machine_HV_LightningRod.get(1));
-                int canAdd = MAXRODS - tRods;
                 List<ItemStack> tInput = getStoredInputs();
                 if (tInput.isEmpty()) return CheckRecipeResultRegistry.NO_RECIPE;
                 for (ItemStack machine : tInput) {
                     if (null == machine || machine.stackSize < 1) continue;
-                    if (LightningRod.equalItemStack(machine)) {
-                        if (canAdd > machine.stackSize) {
-                            mStored.add(GTUtility.copy(machine));
-                            tRods += machine.stackSize;
-                            canAdd -= machine.stackSize;
-                            machine.stackSize = 0;
-                        } else {
-                            mStored.add(GTUtility.copyAmount(MAXRODS - tRods, machine));
-                            machine.stackSize -= canAdd;
-                            tRods = MAXRODS;
-                            break;
-                        }
-                    }
-                }
+                    checkAddRods(machine, LightningRod_T1, LightningRod_T2, LightningRod_T3);
 
-                tProduct = tRods * 28000000L;
-                tMaxStored = tRods * 280000000L;
+                }
+                tryAddFluids();
+
+                tProduct = tRods * 28000000L * tierRod;
+                tMaxStored = tRods * 280000000L * tierRod;
                 this.mMaxProgresstime = 20;
                 updateSlots();
                 return CheckRecipeResultRegistry.SUCCESSFUL;
@@ -340,6 +372,7 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
                 tRods = 0;
                 tProduct = 0;
                 tMaxStored = 0;
+                tierRod = 0;
                 this.mMaxProgresstime = 20;
                 updateSlots();
                 return CheckRecipeResultRegistry.SUCCESSFUL;
@@ -347,6 +380,73 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
         }
 
         return CheckRecipeResultRegistry.NO_RECIPE;
+    }
+
+    public void checkAddRods(ItemStack itemStack, TST_ItemID... tstItemIDS) {
+        List<ItemStack> itemsStored = new CopyOnWriteArrayList<>(mStored);
+        if (itemsStored.isEmpty()) {
+            tryAddRods(itemStack);
+        }
+        for (ItemStack machineRod : itemsStored) {
+            for (TST_ItemID lightningRods : tstItemIDS) {
+                if (lightningRods.equalItemStack(machineRod) && lightningRods.equalItemStack(itemStack)) {
+                    tryAddRods(itemStack);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void tryAddRods(ItemStack itemStack) {
+        int canAdd = MAXRODS - tRods;
+
+        if (canAdd > itemStack.stackSize) {
+            mStored.add(GTUtility.copy(itemStack));
+            tRods += itemStack.stackSize;
+            canAdd -= itemStack.stackSize;
+            itemStack.stackSize = 0;
+        } else {
+            mStored.add(GTUtility.copyAmount(MAXRODS - tRods, itemStack));
+            itemStack.stackSize -= canAdd;
+            tRods = MAXRODS;
+        }
+    }
+
+    public void tryAddFluids() {
+        if (!mStored.isEmpty()) {
+            if (LightningRod_T1.equalItemStack(mStored.get(0))) {
+                FLUID_TARGET = Materials.Iron.getMolten(1)
+                    .getFluid();
+                nameFluids = "Molten Iron";
+                tierRod = 1;
+                nameRods = mStored.get(0)
+                    .getDisplayName();
+
+                CATALYST_TARGET = FluidRegistry.getFluid("cryotheum");
+                nameCatalyst = "Cryotheum";
+            } else if (LightningRod_T2.equalItemStack(mStored.get(0))) {
+                FLUID_TARGET = Materials.Tungsten.getMolten(1)
+                    .getFluid();
+                nameFluids = "Molten Tungsten";
+                tierRod = 4;
+                nameRods = mStored.get(0)
+                    .getDisplayName();
+
+                CATALYST_TARGET = Materials.Helium_3.getGas(1)
+                    .getFluid();
+                nameCatalyst = "Helium-3";
+            } else if (LightningRod_T3.equalItemStack(mStored.get(0))) {
+                FLUID_TARGET = MaterialsAlloy.BLACK_TITANIUM.getFluid();
+                nameFluids = "Molten Black Titanium";
+                tierRod = 16;
+                nameRods = mStored.get(0)
+                    .getDisplayName();
+
+                CATALYST_TARGET = Materials.UUMatter.getFluid(1)
+                    .getFluid();
+                nameCatalyst = "UUMatter";
+            }
+        }
     }
 
     @Override
@@ -394,6 +494,11 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
         aNBT.setLong("tMaxStored", tMaxStored);
         aNBT.setInteger("tRods", tRods);
         aNBT.setInteger("OperatingMode", OperatingMode);
+        aNBT.setInteger("SuperconductorTier", superconductorTier);
+        aNBT.setString("nameRods", nameRods);
+        aNBT.setString("nameFluids", nameFluids);
+        aNBT.setString("nameCatalyst", nameCatalyst);
+        // aNBT.setByte("tierRod",tierRod);
         NBTTagList tTags = new NBTTagList();
         for (ItemStack titem : mStored) {
             tTags.appendTag(titem.writeToNBT(new NBTTagCompound()));
@@ -410,6 +515,11 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
         tMaxStored = aNBT.getLong("tMaxStored");
         tRods = aNBT.getInteger("tRods");
         OperatingMode = aNBT.getInteger("OperatingMode");
+        superconductorTier = aNBT.getInteger("SuperconductorTier");
+        nameRods = aNBT.getString("nameRods");
+        nameFluids = aNBT.getString("nameFluids");
+        nameCatalyst = aNBT.getString("nameCatalyst");
+        // tierRod = aNBT.getByte("tierRod");
         NBTTagList tTags = aNBT.getTagList("tTags", 10);
         for (int i = 0; i < tTags.tagCount(); ++i) {
             NBTTagCompound nbttagcompound1 = tTags.getCompoundTagAt(i);
@@ -560,18 +670,51 @@ public class GTCM_LightningSpire extends TT_MultiMachineBase_EM implements ICons
 
     @Override
     protected void drawTexts(DynamicPositionedColumn screenElements, SlotWidget inventorySlot) {
-        super.drawTexts(screenElements, inventorySlot);
+        screenElements.setSynced(true)
+            .setSpace(0)
+            .setPos(10, 7);
         screenElements
             .widget(
-                new TextWidget().setStringSupplier(() -> "Currently stored LR:" + numberFormat.format(tRods))
+                new TextWidget().setStringSupplier(() -> "Currently stored LR: " + numberFormat.format(tRods))
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> getBaseMetaTileEntity().getErrorDisplayID() == 0))
             .widget(new FakeSyncWidget.IntegerSyncer(() -> tRods, val -> tRods = val))
             .widget(
-                new TextWidget().setStringSupplier(() -> "EU Gen per strike:" + numberFormat.format(tProduct))
+                new TextWidget().setStringSupplier(() -> "Name rod: " + nameRods)
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
+                    .setEnabled(tRods > 0))
+            .widget(new FakeSyncWidget.StringSyncer(() -> nameRods, val -> nameRods = val))
+            .widget(
+                new TextWidget().setStringSupplier(() -> "EU Gen per strike: " + numberFormat.format(tProduct))
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> getBaseMetaTileEntity().getErrorDisplayID() == 0))
-            .widget(new FakeSyncWidget.LongSyncer(() -> tProduct, val -> tProduct = val));
+            .widget(new FakeSyncWidget.LongSyncer(() -> tProduct, val -> tProduct = val))
+
+            .widget(
+                new TextWidget().setStringSupplier(() -> "Catalyst name: " + EnumChatFormatting.YELLOW + nameCatalyst)
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
+                    .setEnabled(tRods > 0))
+            .widget(new FakeSyncWidget.StringSyncer(() -> nameCatalyst, val -> nameCatalyst = val))
+            .widget(
+                new TextWidget()
+                    .setStringSupplier(
+                        () -> "Catalyst consumption: " + EnumChatFormatting.YELLOW
+                            + CONSUMPTION_FLUID
+                            + EnumChatFormatting.RESET
+                            + "mb")
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
+                    .setEnabled(tRods > 0))
+            .widget(
+                new TextWidget().setStringSupplier(() -> "Fluid name: " + EnumChatFormatting.RED + nameFluids)
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
+                    .setEnabled(tRods > 0))
+            .widget(new FakeSyncWidget.StringSyncer(() -> nameFluids, val -> nameFluids = val))
+            .widget(
+                new TextWidget().setStringSupplier(
+                    () -> "Fluid consumption: " + EnumChatFormatting.RED + 72 * tRods + EnumChatFormatting.RESET + "mb")
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
+                    .setEnabled(tRods > 0));
+
     }
 
     //
