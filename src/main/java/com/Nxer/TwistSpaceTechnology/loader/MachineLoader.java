@@ -50,6 +50,7 @@ import com.Nxer.TwistSpaceTechnology.common.machine.TST_LargeSteamForgeHammer;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaCraftingCenter;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaMacerator;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaTreeFarm;
+import com.Nxer.TwistSpaceTechnology.common.machine.TST_MegaVolcanus;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MicroSpaceTimeFabricatorio;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_MiracleDoor;
 import com.Nxer.TwistSpaceTechnology.common.machine.TST_Scavenger;
@@ -166,6 +167,8 @@ public class MachineLoader {
     public static ItemStack MicroSpaceTimeFabricatorio;
 
     public static ItemStack BloodyHell;
+
+    public static ItemStack MegaVolcanus;
 
     // Single Block
     public static ItemStack InfiniteAirHatch;
@@ -712,6 +715,10 @@ public class MachineLoader {
                 GTCMItemList.BloodOrbHatch.set(BloodOrbHatch);
             }
         }
+
+        MegaVolcanus = new TST_MegaVolcanus(19062, "NameMegaVolcanus", TextEnums.tr("NameMegaVolcanus"))
+            .getStackForm(1);
+        GTCMItemList.MegaVolcanus.set(MegaVolcanus);
 
         // endregion
 

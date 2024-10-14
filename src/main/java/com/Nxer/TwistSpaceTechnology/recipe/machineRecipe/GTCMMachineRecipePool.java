@@ -3120,6 +3120,33 @@ public class GTCMMachineRecipePool implements IRecipePool {
                 .duration(60)
                 .addTo(GTCMRecipe.BloodyHellRecipes);
         }
+        // Mega Volcanus
+        GTValues.RA
+            .stdBuilder()
+            .metadata(RESEARCH_ITEM, GregtechItemList.Machine_Adv_BlastFurnace.get(1))
+            .metadata(RESEARCH_TIME, 2 * HOURS)
+            .itemInputs(
+                setStackSize(GregtechItemList.Machine_Adv_BlastFurnace.get(1),64),
+                setStackSize(megaMachines[0],64),
+                ItemList.Field_Generator_UV.get(16),
+                ItemList.Electric_Pump_UV.get(64),
+                ItemList.Conveyor_Module_UV.get(64),
+                new Object[]{OrePrefixes.circuit.get(Materials.Ultimate), 16},
+                new Object[]{OrePrefixes.circuit.get(Materials.SuperconductorUHV), 8},
+                GTOreDictUnificator.get(OrePrefixes.wireGt04, Materials.SuperconductorZPM, 16),
+                GTOreDictUnificator.get(OrePrefixes.plateDense, Materials.Neutronium, 16),
+                GTOreDictUnificator.get(OrePrefixes.wireGt02, Materials.SuperconductorUV, 32)
+            )
+            .fluidInputs(
+                new FluidStack(solderIndAlloy, 144 * 256),
+                Materials.Naquadria.getMolten(144 * 256),
+                Materials.Lubricant.getFluid(1000 * 256),
+                Materials.Samarium.getMolten(144 * 256)
+            )
+            .itemOutputs(GTCMItemList.MegaVolcanus.get(1))
+            .eut(RECIPE_UHV)
+            .duration(20 * 300)
+            .addTo(assemblyLine);
 
     }
     // spotless:on

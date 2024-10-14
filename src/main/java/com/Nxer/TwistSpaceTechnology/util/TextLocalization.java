@@ -107,6 +107,7 @@ public class TextLocalization {
     public static final String textAroundController = texter("Around the Controller", "textAroundController");
 
     public static final String textScrewdriverChangeMode = texter("Use screwdriver to change mode.", "textScrewdriverChangeMode");
+    public static final String textScrewdriverChangeLiquid = texter("Use screwdriver to change Liquid.", "textScrewdriverChangeLiquid");
 
     // endregion
 
@@ -327,6 +328,16 @@ public class TextLocalization {
     public static final String Tooltip_HolySeparator_03 = texter("You can even slice potato chips with this.", "Tooltip_HolySeparator_03");
     public static final String Tooltip_HolySeparator_04 = texter("Extra 8x Parallel per Piece. 16 Piece enable Perfect Overclock.", "Tooltip_HolySeparator_04");
     public static final String Tooltip_HolySeparator_05 = texter("Additional 10%% reduction in time per Voltage Tier, multiplication calculus.", "Tooltip_HolySeparator_05");
+
+    // endregion
+
+    // region Mega Volcanus
+
+    public static final String Tooltip_MegaVolcanus_MachineType = texter("EBF", "Tooltip_MegaVolcanus_MachineType");
+    public static final String Tooltip_MegaVolcanus_00 = texter("Controller block for the Mega Volcanus", "Tooltip_MegaVolcanus_00");
+    public static final String Tooltip_MegaVolcanus_01 = texter("Extra 5% speed per tier component block", "Tooltip_MegaVolcanus_01");
+    public static final String Tooltip_MegaVolcanus_02 = texter("Have 2048 parallels", "Tooltip_MegaVolcanus_02");
+    public static final String Tooltip_MegaVolcanus_03 = texter("Consumes 10_000L of " + EnumChatFormatting.GOLD + "Blazing Pyrotheum" + EnumChatFormatting.GRAY + "1_000 of " + EnumChatFormatting.YELLOW + "Helium Plasma" + EnumChatFormatting.GRAY + "10 of " + EnumChatFormatting.DARK_PURPLE + "SpaceTime" + EnumChatFormatting.GRAY + "per second during operation", "Tooltip_MegaVolcanus_03");
 
     // endregion
 
