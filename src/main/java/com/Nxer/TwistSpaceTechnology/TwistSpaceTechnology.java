@@ -1,7 +1,10 @@
 package com.Nxer.TwistSpaceTechnology;
 
 import static com.Nxer.TwistSpaceTechnology.loader.RecipeLoader.loadRecipesServerStarted;
+import static gregtech.api.enums.Mods.Forestry;
 
+import com.Nxer.TwistSpaceTechnology.common.bees.TSTBees;
+import gregtech.loaders.misc.GTBees;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -125,6 +128,9 @@ public class TwistSpaceTechnology {
 
         CropLoader.register();
         CropLoader.registerBaseSeed();
+
+        if (Forestry.isModLoaded())
+            new TSTBees();
 
         TCLoader.load();
     }
