@@ -1,7 +1,9 @@
 package com.Nxer.TwistSpaceTechnology;
 
 import static com.Nxer.TwistSpaceTechnology.loader.RecipeLoader.loadRecipesServerStarted;
+import static gregtech.api.enums.Mods.Forestry;
 
+import com.Nxer.TwistSpaceTechnology.common.bee.TSTBee;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.Nxer.TwistSpaceTechnology.combat.DamageEventHandler;
@@ -122,6 +124,9 @@ public class CommonProxy {
         if (Config.RewriteEIOTravelStaffConfig) {
             ItemYamato.rewriteEIOTravelStaffConfig();
         }
+
+        if (Forestry.isModLoaded())
+            new TSTBee();
 
         MachineLoader.loadMachinePostInit();
         OreDictLoader.loadOreDictionary();

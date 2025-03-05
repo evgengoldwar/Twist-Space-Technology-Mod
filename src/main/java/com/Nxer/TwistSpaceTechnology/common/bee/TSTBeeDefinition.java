@@ -55,7 +55,7 @@ class TSTBeeDefinitionReference {
 
 public enum TSTBeeDefinition implements IBeeDefinition {
 
-    NOOB(GTBranchDefinition.ENDGAME, "Noob bee", false, new Color(0x4333A5), new Color(0x36ABFF),
+    VORTEX(GTBranchDefinition.ENDGAME, "Vortex bee", false, new Color(0x4333A5), new Color(0x36ABFF),
         beeSpecies -> {
             beeSpecies.addProduct(GTModHandler.getModItem(Forestry.ID, "beeCombs", 1, 0), 0.30f);
             beeSpecies.addProduct(new ItemStack(Items.clay_ball, 1), 0.15f);
