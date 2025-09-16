@@ -319,7 +319,7 @@ F -> ofBlock...(gt.blockframes, 305, ...);
 
     @Override
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-        return new TST_UniversalGenerator(this.mName);
+        return new TST_LargeEssentiaGenerator(this.mName);
     }
 
     @Override

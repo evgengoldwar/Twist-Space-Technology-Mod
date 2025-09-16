@@ -295,6 +295,7 @@ public enum GTCMItemList {
     MeteorMiner,
     UniversalGenerator,
     LargeSolarBoiler,
+    LargeEssentiaGenerator,
     // endregion
 
     // region Modularized Machines
