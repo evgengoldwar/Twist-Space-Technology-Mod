@@ -18,6 +18,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import galacticgreg.api.ModDimensionDef;
+import galacticgreg.api.enums.DimensionDef;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -95,6 +97,8 @@ public class TST_EyeOfWood extends GTCM_MultiMachineBase<TST_EyeOfWood> {
     private int storedLava = 0;
     private boolean enableRender = Config.EnableRenderDefault_EyeOfWood;
     public boolean isRendering = false;
+    private ModDimensionDef dimensionDef;
+    private boolean canVoidMine = true;
 
     @Override
     public String[] getInfoData() {
@@ -363,6 +367,7 @@ public class TST_EyeOfWood extends GTCM_MultiMachineBase<TST_EyeOfWood> {
     @Override
     public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
         super.onFirstTick(aBaseMetaTileEntity);
+        calculateDropMap();
 
         if (aBaseMetaTileEntity.isServerSide()) {
             if (!isWorkableDimension(aBaseMetaTileEntity.getWorld().provider)) {
@@ -378,6 +383,30 @@ public class TST_EyeOfWood extends GTCM_MultiMachineBase<TST_EyeOfWood> {
             }
         }
 
+    }
+
+    private void calculateDropMap() {
+        int id = this.getBaseMetaTileEntity()
+            .getWorld().provider.dimensionId;
+        this.dropMap = null;
+        this.extraDropMap = null;
+        this.totalWeight = 0;
+        this.canVoidMine = false;
+
+        dimensionDef = DimensionDef.getDefForWorld(getBaseMetaTileEntity().getWorld());
+
+        if (dimensionDef == null || !dimensionDef.canBeVoidMined()) return;
+
+        this.canVoidMine = true;
+
+        this.dropMap = VoidMinerUtility.dropMapsByDimName
+            .getOrDefault(dimensionDef.getDimensionName(), new VoidMinerUtility.DropMap());
+        this.extraDropMap = VoidMinerUtility.extraDropsByDimName
+            .getOrDefault(dimensionDef.getDimensionName(), new VoidMinerUtility.DropMap());
+
+        this.dropMap.isDistributionCached(this.extraDropMap);
+
+        this.totalWeight = dropMap.getTotalWeight() + extraDropMap.getTotalWeight();
     }
 
     @Override
@@ -402,8 +431,6 @@ public class TST_EyeOfWood extends GTCM_MultiMachineBase<TST_EyeOfWood> {
             // override to use overworld dimension data.
             dimensionId = 0;
         }
-        handleModDimDef(dimensionId);
-        handleExtraDrops(dimensionId);
         totalWeight = dropMap.getTotalWeight() + extraDropMap.getTotalWeight();
 
         if (totalWeight <= 0) {
@@ -430,36 +457,6 @@ public class TST_EyeOfWood extends GTCM_MultiMachineBase<TST_EyeOfWood> {
             || (ALLOW_PERSONAL_SPACE && isPersonalSpace(worldProvider));
     }
 
-    /**
-     * Gets the DropMap of the dim for the specified dim id
-     *
-     * @param id the dim number
-     */
-    private void handleModDimDef(int id) {
-        if (VoidMinerUtility.dropMapsByDimId.containsKey(id)) {
-            dropMap = VoidMinerUtility.dropMapsByDimId.get(id);
-        } else {
-            String chunkProviderName = ((ChunkProviderServer) this.getBaseMetaTileEntity()
-                .getWorld()
-                .getChunkProvider()).currentChunkProvider.getClass()
-                    .getName();
-
-            if (VoidMinerUtility.dropMapsByChunkProviderName.containsKey(chunkProviderName)) {
-                dropMap = VoidMinerUtility.dropMapsByChunkProviderName.get(chunkProviderName);
-            }
-        }
-    }
-
-    /**
-     * Handles the ores added manually with {@link VoidMinerUtility#addMaterialToDimensionList}
-     *
-     * @param id the specified dim id
-     */
-    private void handleExtraDrops(int id) {
-        if (VoidMinerUtility.extraDropsDimMap.containsKey(id)) {
-            extraDropMap = VoidMinerUtility.extraDropsDimMap.get(id);
-        }
-    }
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {

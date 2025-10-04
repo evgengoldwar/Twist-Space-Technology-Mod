@@ -11,11 +11,14 @@ import static net.minecraft.util.StatCollector.translateToLocal;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import gregtech.api.util.GTDataUtils;
+import gregtech.api.util.GTUtility;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -167,7 +170,8 @@ public class TST_CleanRoom extends TT_MultiMachineBase_EM implements IConstructa
             var b = filterValidMTEs(mOutputHatches);
             var c = filterValidMTEs(mInputBusses);
             var d = filterValidMTEs(mOutputBusses);
-            boolean item_me = canDumpItemToME();
+            List<GTUtility.ItemId> outputIds = GTDataUtils.mapToList(mOutputItems, GTUtility.ItemId::create);
+            boolean item_me = canDumpItemToME(outputIds);
             boolean fluid_me = canDumpFluidToME();
             if ((a.size() != b.size() && (!item_me)) || (c.size() != d.size() && (!fluid_me))) {
                 stopMachine();

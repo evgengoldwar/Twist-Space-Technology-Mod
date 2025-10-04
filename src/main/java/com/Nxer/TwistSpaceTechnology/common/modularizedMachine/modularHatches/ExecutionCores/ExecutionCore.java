@@ -1,5 +1,7 @@
 package com.Nxer.TwistSpaceTechnology.common.modularizedMachine.modularHatches.ExecutionCores;
 
+import gregtech.api.interfaces.IOutputBus;
+import gregtech.api.util.GTUtility;
 import net.minecraft.client.renderer.texture.IIconRegister;
 
 import com.Nxer.TwistSpaceTechnology.util.TextEnums;
@@ -11,6 +13,8 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.render.TextureFactory;
+
+import java.util.List;
 
 public class ExecutionCore extends ExecutionCoreBase {
 
@@ -105,6 +109,16 @@ public class ExecutionCore extends ExecutionCoreBase {
     @Override
     public ITexture[] getTexturesInactive(ITexture aBaseTexture) {
         return new ITexture[] { aBaseTexture, TextureFactory.of(InactiveFace) };
+    }
+
+    @Override
+    public List<IOutputBus> getOutputBusses() {
+        return null;
+    }
+
+    @Override
+    public boolean canDumpItemToME(List<GTUtility.ItemId> outputs) {
+        return false;
     }
 
     // endregion

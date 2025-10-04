@@ -367,13 +367,13 @@ public abstract class ExecutionCoreBase extends ModularHatchBase implements IExe
     @Override
     public void setVoidingMode(VoidingMode mode) {}
 
-    @Override
-    public List<ItemStack> getItemOutputSlots(ItemStack[] toOutput) {
-        if (mainMachine instanceof IVoidable m) {
-            return m.getItemOutputSlots(toOutput);
-        }
-        return Collections.emptyList();
-    }
+//    @Override
+//    public List<ItemStack> getItemOutputSlots(ItemStack[] toOutput) {
+//        if (mainMachine instanceof IVoidable m) {
+//            return m.getItemOutputSlots(toOutput);
+//        }
+//        return Collections.emptyList();
+//    }
 
     @Override
     public List<? extends IFluidStore> getFluidOutputSlots(FluidStack[] toOutput) {
@@ -383,13 +383,13 @@ public abstract class ExecutionCoreBase extends ModularHatchBase implements IExe
         return Collections.emptyList();
     }
 
-    @Override
-    public boolean canDumpItemToME() {
-        if (mainMachine instanceof IVoidable m) {
-            return m.canDumpItemToME();
-        }
-        return false;
-    }
+//    @Override
+//    public boolean canDumpItemToME() {
+//        if (mainMachine instanceof IVoidable m) {
+//            return m.canDumpItemToME();
+//        }
+//        return false;
+//    }
 
     @Override
     public boolean canDumpFluidToME() {
@@ -399,13 +399,13 @@ public abstract class ExecutionCoreBase extends ModularHatchBase implements IExe
         return false;
     }
 
-    @Override
-    public List<ItemStack> getVoidOutputSlots() {
-        if (mainMachine instanceof IVoidable m) {
-            return m.getVoidOutputSlots();
-        }
-        return TstUtils.EMPTY_ITEMSTACK_LIST;
-    }
+//    @Override
+//    public List<ItemStack> getVoidOutputSlots() {
+//        if (mainMachine instanceof IVoidable m) {
+//            return m.getVoidOutputSlots();
+//        }
+//        return TstUtils.EMPTY_ITEMSTACK_LIST;
+//    }
 
     // endregion
 

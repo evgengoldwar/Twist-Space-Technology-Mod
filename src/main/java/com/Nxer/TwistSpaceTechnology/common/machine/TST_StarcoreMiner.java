@@ -361,41 +361,9 @@ public class TST_StarcoreMiner extends GTCM_MultiMachineBase<TST_StarcoreMiner> 
         this.extraDropMap = new VoidMinerUtility.DropMap();
         int id = this.getBaseMetaTileEntity()
             .getWorld().provider.dimensionId;
-        this.handleModDimDef(id);
-        this.handleExtraDrops(id);
         this.totalWeight = dropMap.getTotalWeight() + extraDropMap.getTotalWeight();
     }
 
-    /**
-     * Gets the DropMap of the dim for the specified dim id
-     *
-     * @param id the dim number
-     */
-    private void handleModDimDef(int id) {
-        if (VoidMinerUtility.dropMapsByDimId.containsKey(id)) {
-            this.dropMap = VoidMinerUtility.dropMapsByDimId.get(id);
-        } else {
-            String chunkProviderName = ((ChunkProviderServer) this.getBaseMetaTileEntity()
-                .getWorld()
-                .getChunkProvider()).currentChunkProvider.getClass()
-                    .getName();
-
-            if (VoidMinerUtility.dropMapsByChunkProviderName.containsKey(chunkProviderName)) {
-                this.dropMap = VoidMinerUtility.dropMapsByChunkProviderName.get(chunkProviderName);
-            }
-        }
-    }
-
-    /**
-     * Handles the ores added manually with {@link VoidMinerUtility#addMaterialToDimensionList}
-     *
-     * @param id the specified dim id
-     */
-    private void handleExtraDrops(int id) {
-        if (VoidMinerUtility.extraDropsDimMap.containsKey(id)) {
-            extraDropMap = VoidMinerUtility.extraDropsDimMap.get(id);
-        }
-    }
 
     private ItemStack generateOneStackOre() {
         ItemStack nextOre = nextOre();

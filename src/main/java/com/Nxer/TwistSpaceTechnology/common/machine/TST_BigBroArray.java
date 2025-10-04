@@ -1925,7 +1925,7 @@ public class TST_BigBroArray extends TT_MultiMachineBase_EM implements ISurvival
         } else {
             hint = MachineHintMessages.MACHINE_TO_OUTPUT;
             // clear
-            addOutput(machines);
+            addOutputAtomic(machines);
             machines = null;
             generatorTE = null;
             mode = null;

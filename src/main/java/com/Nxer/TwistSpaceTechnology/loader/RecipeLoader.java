@@ -137,7 +137,7 @@ public class RecipeLoader {
         StaticMiscs.init();
         GT_TileEntity_MegaBrickedBlastFurnace.initStatics();
 
-        OP_NormalProcessing.enumOreProcessingRecipes();
+//        OP_NormalProcessing.enumOreProcessingRecipes();
 
         if (Config.Enable_MegaCraftingCenter) {
             new ExtremeCraftRecipeHandler().initECRecipe();

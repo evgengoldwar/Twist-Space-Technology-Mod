@@ -82,35 +82,35 @@ public class OP_NormalProcessing {
     /**
      * Generate recipes.
      */
-    public static void enumOreProcessingRecipes() {
-        initProcessingLineMaterials();
-        Set<Materials> specialProcesses = Sets.newHashSet(
-            Materials.Samarium,
-            Materials.Cerium,
-            Materials.Naquadah,
-            Materials.NaquadahEnriched,
-            Materials.Naquadria);
-
-        // generate normal materials' ore processing recipes
-        for (int i = 0; i < GregTechAPI.sGeneratedMaterials.length; i++) {
-            if (GregTechAPI.sGeneratedMaterials[i] == null) continue;
-
-            Materials material = GregTechAPI.sGeneratedMaterials[i];
-
-            // rule out special materials
-            if (!specialProcesses.isEmpty() && specialProcesses.contains(material)) {
-                specialProcesses.remove(material);
-                continue;
-            }
-            // generate recipes
-            processOreRecipe(material, i);
-        }
-
-        OP_GTPP_OreHandler.processGTPPOreRecipes();
-        OP_Bartworks_OreHandler.processBWOreRecipes();
-
-        processSpecialOreRecipe();
-    }
+//    public static void enumOreProcessingRecipes() {
+//        initProcessingLineMaterials();
+//        Set<Materials> specialProcesses = Sets.newHashSet(
+//            Materials.Samarium,
+//            Materials.Cerium,
+//            Materials.Naquadah,
+//            Materials.NaquadahEnriched,
+//            Materials.Naquadria);
+//
+//        // generate normal materials' ore processing recipes
+//        for (int i = 0; i < GregTechAPI.sGeneratedMaterials.length; i++) {
+//            if (GregTechAPI.sGeneratedMaterials[i] == null) continue;
+//
+//            Materials material = GregTechAPI.sGeneratedMaterials[i];
+//
+//            // rule out special materials
+//            if (!specialProcesses.isEmpty() && specialProcesses.contains(material)) {
+//                specialProcesses.remove(material);
+//                continue;
+//            }
+//            // generate recipes
+//            processOreRecipe(material, i);
+//        }
+//
+//        OP_GTPP_OreHandler.processGTPPOreRecipes();
+//        OP_Bartworks_OreHandler.processBWOreRecipes();
+//
+//        processSpecialOreRecipe();
+//    }
 
     /**
      * Generate special ores recipes

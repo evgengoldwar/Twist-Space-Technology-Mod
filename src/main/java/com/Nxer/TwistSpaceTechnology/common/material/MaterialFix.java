@@ -39,8 +39,8 @@ public class MaterialFix {
 
         // Neutronium Alloy
 
-        addBlastRecipe(MaterialsTST.NeutroniumAlloy, (int) TierEU.RECIPE_UIV, 54 * 20, 12500, true,true);
-        addVacuumFreezerRecipe(MaterialsTST.NeutroniumAlloy,(int)TierEU.RECIPE_UEV,18 * 20);
+//        addBlastRecipe(MaterialsTST.NeutroniumAlloy, (int) TierEU.RECIPE_UIV, 54 * 20, 12500, true,true);
+//        addVacuumFreezerRecipe(MaterialsTST.NeutroniumAlloy,(int)TierEU.RECIPE_UEV,18 * 20);
 
         GTValues.RA.stdBuilder()
             .itemInputs(
