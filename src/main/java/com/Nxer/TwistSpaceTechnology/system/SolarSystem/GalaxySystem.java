@@ -3,6 +3,7 @@ package com.Nxer.TwistSpaceTechnology.system.SolarSystem;
 import java.util.Arrays;
 import java.util.List;
 
+import com.Nxer.TwistSpaceTechnology.common.material.MaterialPool;
 import com.emoniph.witchery.util.Config;
 
 import de.katzenpapst.amunra.AmunRa;
@@ -63,7 +64,7 @@ public enum GalaxySystem {
         .withGas(Materials.NetherAir.getFluid(1))
         .build()),
     THE_END(1, "The End", new GalaxySystemProperties.Builder()
-        .withGas(null)
+        .withGas(MaterialPool.EndAir.getFluidOrGas(1))
         .build()),
     SPECTRE_WORLD(2, "SpectreWorld", new GalaxySystemProperties.Builder()
             .build()

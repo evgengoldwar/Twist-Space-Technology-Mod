@@ -1,5 +1,6 @@
 package com.Nxer.TwistSpaceTechnology.system.SolarSystem;
 
+import com.Nxer.TwistSpaceTechnology.common.machine.MiscHelper;
 import net.minecraftforge.fluids.FluidStack;
 
 public class GalaxySystemProperties {
@@ -19,6 +20,7 @@ public class GalaxySystemProperties {
         public Builder() {}
 
         public Builder withGas(FluidStack gas) {
+            if (gas == null) gas = MiscHelper.water.copy();
             this.gas = gas;
             return this;
         }
