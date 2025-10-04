@@ -177,7 +177,7 @@ public class MaterialPool implements Runnable {
         TextureSet.SET_FLUID);
 
     public static final Werkstoff EndAir = new Werkstoff(
-        new short[] {153, 153, 0},
+        new short[] { 153, 153, 0 },
         "End Air",
         new Werkstoff.Stats(),
         Werkstoff.Types.ELEMENT,

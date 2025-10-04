@@ -1,7 +1,8 @@
 package com.Nxer.TwistSpaceTechnology.system.SolarSystem;
 
-import com.Nxer.TwistSpaceTechnology.common.machine.MiscHelper;
 import net.minecraftforge.fluids.FluidStack;
+
+import com.Nxer.TwistSpaceTechnology.common.machine.MiscHelper;
 
 public class GalaxySystemProperties {
 
