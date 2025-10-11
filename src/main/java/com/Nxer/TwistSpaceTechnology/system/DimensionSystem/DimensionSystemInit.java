@@ -1,5 +1,6 @@
 package com.Nxer.TwistSpaceTechnology.system.DimensionSystem;
 
+import com.Nxer.TwistSpaceTechnology.common.material.MaterialPool;
 import com.emoniph.witchery.util.Config;
 
 import de.katzenpapst.amunra.AmunRa;
@@ -72,6 +73,7 @@ public class DimensionSystemInit {
     private static DimensionSystem loadTheEnd() {
         return new DimensionBuilder()
             .setId(1)
+            .setGenerateGas(MaterialPool.TheEndAir.getFluidOrGas(1))
             .setName("The End")
             .constructDimension();
     }

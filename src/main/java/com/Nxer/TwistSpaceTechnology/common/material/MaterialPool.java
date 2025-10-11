@@ -176,6 +176,16 @@ public class MaterialPool implements Runnable {
         offsetID_01 + 12,
         TextureSet.SET_FLUID);
 
+    public static final Werkstoff TheEndAir = new Werkstoff(
+        new short[] { 255, 191, 0},
+        "End Air",
+        new Werkstoff.Stats(),
+        Werkstoff.Types.ELEMENT,
+        new Werkstoff.GenerationFeatures().disable()
+            .addCells(),
+        offsetID_01 + 13,
+        TextureSet.SET_FLUID);
+
     // Bartworks' Material System run on Runnable.class
     @Override
     public void run() {

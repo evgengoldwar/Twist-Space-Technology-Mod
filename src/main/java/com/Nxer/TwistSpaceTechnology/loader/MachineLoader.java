@@ -7,6 +7,7 @@ import static com.Nxer.TwistSpaceTechnology.config.Config.ParallelOfParallelCont
 import static com.Nxer.TwistSpaceTechnology.config.Config.PowerConsumptionMultiplierOfPowerConsumptionController;
 import static com.Nxer.TwistSpaceTechnology.config.Config.SpeedMultiplierOfSpeedController;
 
+import com.Nxer.TwistSpaceTechnology.common.machine.TST_GasCollector;
 import net.minecraft.entity.EntityList;
 
 import com.Nxer.TwistSpaceTechnology.common.GTCMItemList;
@@ -629,6 +630,9 @@ public final class MachineLoader {
 
         GTCMItemList.SuperWaterPurifier
             .set(new TST_SuperWaterPurifier(19078, "NameSuperWaterPurifier", TextEnums.tr("NameSuperWaterPurifier")));
+
+        GTCMItemList.GasCollector
+            .set(new TST_GasCollector(19079, "NameGasCollector", TextEnums.tr("NameGasCollector")));
 
         // endregion
 
