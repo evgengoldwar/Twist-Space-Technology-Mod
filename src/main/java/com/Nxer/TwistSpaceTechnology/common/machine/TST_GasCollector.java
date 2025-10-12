@@ -1,43 +1,9 @@
 package com.Nxer.TwistSpaceTechnology.common.machine;
 
-import com.Nxer.TwistSpaceTechnology.common.machine.multiMachineClasses.GTCM_MultiMachineBase;
-import com.Nxer.TwistSpaceTechnology.system.DimensionSystem.DimensionSystem;
-import com.Nxer.TwistSpaceTechnology.util.TextLocalization;
-import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
-import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
-import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.Textures;
-import gregtech.api.enums.TierEU;
-import gregtech.api.interfaces.ITexture;
-import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
-import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.logic.ProcessingLogic;
-import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.recipe.check.CheckRecipeResultRegistry;
-import gregtech.api.render.TextureFactory;
-import gregtech.api.util.MultiblockTooltipBuilder;
-import gregtech.api.util.VoidProtectionHelper;
-import gregtech.common.blocks.BlockCasings2;
-import gregtech.common.blocks.BlockCasings6;
-import gregtech.common.blocks.BlockCasingsNH;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.Nxer.TwistSpaceTechnology.util.TstUtils.setStackSize;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static gregtech.api.GregTechAPI.sBlockCasings2;
 import static gregtech.api.GregTechAPI.sBlockCasings6;
 import static gregtech.api.GregTechAPI.sBlockCasingsNH;
 import static gregtech.api.GregTechAPI.sBlockTintedGlass;
@@ -53,7 +19,37 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_ELECTRIC_BLAS
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.ofFrame;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
+
+import com.Nxer.TwistSpaceTechnology.common.machine.multiMachineClasses.GTCM_MultiMachineBase;
+import com.Nxer.TwistSpaceTechnology.system.DimensionSystem.DimensionSystem;
+import com.Nxer.TwistSpaceTechnology.util.TextLocalization;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+
+import gregtech.api.enums.Materials;
+import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.ITexture;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.logic.ProcessingLogic;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.render.TextureFactory;
+import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.api.util.VoidProtectionHelper;
+import gregtech.common.blocks.BlockCasingsNH;
+
 public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
+
     // region Class Constructor
     public TST_GasCollector(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -66,11 +62,14 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
     // endregion
 
     // region Processing Logic
-    private final List<DimensionSystem> validDimension = new ArrayList<DimensionSystem>() {{
-        add(DimensionSystem.Overworld);
-        add(DimensionSystem.Nether);
-        add(DimensionSystem.TheEnd);
-    }};
+    private final List<DimensionSystem> validDimension = new ArrayList<DimensionSystem>() {
+
+        {
+            add(DimensionSystem.Overworld);
+            add(DimensionSystem.Nether);
+            add(DimensionSystem.TheEnd);
+        }
+    };
     private FluidStack generateGas = null;
     private int mCasing = 0;
 
@@ -99,7 +98,7 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
                 }
 
                 duration = 1_200;
-//                calculatedEut = -TierEU.RECIPE_UMV
+                // calculatedEut = -TierEU.RECIPE_UMV
 
                 return CheckRecipeResultRegistry.SUCCESSFUL;
             }
@@ -211,7 +210,7 @@ D -> ofBlock...(gt.blocktintedglass, 0, ...);
 
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
-                                 int colorIndex, boolean aActive, boolean aRedstone) {
+        int colorIndex, boolean aActive, boolean aRedstone) {
         if (side == facing) {
             if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(mainTextureID),
                 TextureFactory.builder()
