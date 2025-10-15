@@ -1,9 +1,11 @@
 package com.Nxer.TwistSpaceTechnology.common.machine;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlocksTiered;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.withChannel;
 import static gregtech.api.GregTechAPI.sBlockCasings6;
 import static gregtech.api.GregTechAPI.sBlockCasingsNH;
 import static gregtech.api.GregTechAPI.sBlockTintedGlass;
@@ -18,13 +20,20 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_ELECTRIC_BLAS
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_ELECTRIC_BLAST_FURNACE_GLOW;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.ofFrame;
+import static tectech.thing.casing.TTCasingsContainer.StabilisationFieldGenerators;
+import static tectech.thing.casing.TTCasingsContainer.sBlockCasingsTT;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import com.Nxer.TwistSpaceTechnology.system.DysonSphereProgram.machines.TST_ArtificialStar;
+import com.Nxer.TwistSpaceTechnology.util.enums.TierEU;
+import com.google.common.collect.ImmutableList;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -47,6 +56,7 @@ import gregtech.api.render.TextureFactory;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.VoidProtectionHelper;
 import gregtech.common.blocks.BlockCasingsNH;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
 
@@ -62,7 +72,7 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
     // endregion
 
     // region Processing Logic
-    private final List<DimensionSystem> validDimension = new ArrayList<DimensionSystem>() {
+    private final List<DimensionSystem> validDimension = new ArrayList<>() {
 
         {
             add(DimensionSystem.Overworld);
@@ -82,23 +92,22 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
             public CheckRecipeResult process() {
                 List<FluidStack> outputs = new ArrayList<>();
 
-                if (generateGas == null) return CheckRecipeResultRegistry.NO_RECIPE;
+                if (generateGas == null || tierHermeticCasings < 0) return CheckRecipeResultRegistry.NO_RECIPE;
 
-                generateGas.amount = 1_000;
-                outputs.add(generateGas);
+                generateGas.amount = tierHermeticCasings;
+                outputs.add(generateGas.copy());
 
-                outputFluids = outputs.toArray(new FluidStack[0]);
+                this.outputFluids = outputs.toArray(new FluidStack[0]);
 
                 VoidProtectionHelper voidProtection = new VoidProtectionHelper().setMachine(machine)
-                    .setFluidOutputs(outputFluids)
+                    .setFluidOutputs(this.outputFluids)
                     .build();
 
                 if (voidProtection.isFluidFull()) {
                     return CheckRecipeResultRegistry.FLUID_OUTPUT_FULL;
                 }
 
-                duration = 1_200;
-                // calculatedEut = -TierEU.RECIPE_UMV
+                duration = 20;
 
                 return CheckRecipeResultRegistry.SUCCESSFUL;
             }
@@ -108,18 +117,20 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
     @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         this.mCasing = 0;
+        this.tierHermeticCasings = -1;
 
         if (aBaseMetaTileEntity != null) {
             int idWorld = aBaseMetaTileEntity.getWorld().provider.dimensionId;
             for (DimensionSystem dimension : validDimension) {
                 if (idWorld == dimension.getId()) {
-                    generateGas = dimension.getGenerateGas();
+                    this.generateGas = dimension.getGenerateGas();
                     break;
                 }
             }
         }
 
         if (!checkPiece(STRUCTURE_PIECE_MAIN, horizontalOffSet, verticalOffSet, depthOffSet)) return false;
+        if (this.tierHermeticCasings == -1) return false;
 
         return (this.mCasing >= 10);
     }
@@ -144,6 +155,7 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
     private final int depthOffSet = 0;
     private final int mainTextureID = ((BlockCasingsNH) sBlockCasingsNH).getTextureIndex(0);
     private static IStructureDefinition<TST_GasCollector> STRUCTURE_DEFINITION = null;
+    private int tierHermeticCasings = -1;
 
     @Override
     public IStructureDefinition<TST_GasCollector> getStructureDefinition() {
@@ -162,7 +174,30 @@ public class TST_GasCollector extends GTCM_MultiMachineBase<TST_GasCollector> {
                         onElementPass(x -> ++x.mCasing, ofBlock(sBlockCasingsNH, 0))))
                 .addElement('C', ofFrame(Materials.Iron))
                 .addElement('D', ofBlock(sBlockTintedGlass, 0))
-                .addElement('A', ofBlock(sBlockCasings6, 10))
+                .addElement(
+                    'A',
+                    withChannel("hermetic_casing",
+                        ofBlocksTiered(
+                            TST_GasCollector::getBlockHermeticCasing,
+                            ImmutableList.of(
+                                Pair.of(sBlockCasings6, 0),
+                                Pair.of(sBlockCasings6, 1),
+                                Pair.of(sBlockCasings6, 2),
+                                Pair.of(sBlockCasings6, 3),
+                                Pair.of(sBlockCasings6, 4),
+                                Pair.of(sBlockCasings6, 5),
+                                Pair.of(sBlockCasings6, 6),
+                                Pair.of(sBlockCasings6, 7),
+                                Pair.of(sBlockCasings6, 8),
+                                Pair.of(sBlockCasings6, 9),
+                                Pair.of(sBlockCasings6, 10),
+                                Pair.of(sBlockCasings6, 11),
+                                Pair.of(sBlockCasings6, 12),
+                                Pair.of(sBlockCasings6, 13),
+                                Pair.of(sBlockCasings6, 14)),
+                            -1,
+                            (t, m) -> t.tierHermeticCasings = m,
+                            t -> t.tierHermeticCasings)))
                 .build();
         }
         return STRUCTURE_DEFINITION;
@@ -185,8 +220,12 @@ D -> ofBlock...(gt.blocktintedglass, 0, ...);
         {"BB~BB","BAAAB","BAAAB","BAAAB","CBBBB"},
         {"C   C","     ","     ","     ","C   C"},
         {"C   C","     ","     ","     ","C   C"}
+    };
+
+    public static int getBlockHermeticCasing(Block block, int meta) {
+        if (block == sBlockCasings6 && (meta >= 0 && meta <= 14)) return meta + 1;
+        return 0;
     }
-        ;
     // spotless:on
     // endregion
 
@@ -233,6 +272,18 @@ D -> ofBlock...(gt.blocktintedglass, 0, ...);
                     .build() };
         }
         return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(mainTextureID) };
+    }
+
+    @Override
+    public void saveNBTData(NBTTagCompound aNBT) {
+        super.saveNBTData(aNBT);
+        aNBT.setInteger("tierHermeticCasings", tierHermeticCasings);
+    }
+
+    @Override
+    public void loadNBTData(final NBTTagCompound aNBT) {
+        super.loadNBTData(aNBT);
+        tierHermeticCasings = aNBT.getInteger("tierHermeticCasings");
     }
     // endregion
 }
